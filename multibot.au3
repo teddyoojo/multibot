@@ -23,6 +23,8 @@ Global Const $Map_ID_Drazack = 195
 Global Const $Map_ID_Bjora = 482
 Global Const $Map_ID_Jaga = 546
 Global Const $Town_ID_Longeye = 650
+Global Const $Town_ID_Kaineng = 194
+Global Const $Map_ID_ChanceEncounter = 861
 Global $VaettirInitialized = False
 Global $curGold = 0
 Global $botRunning = False
@@ -30,12 +32,14 @@ Global $charName = ""
 Global $botInitialized = False
 Global $Vaettirfarm = False
 Global $Mossfarm = False
+Global $ChanceEncounterfarm = False
 Global $GoldiesFarmed = 0
 Global $TotalRuns = 0
 Global $PconsFarmed = 0
 Global $FailedRuns = 0
 Global $MossfarmBuildCode = "OgcTcZ88ZSn5A65Q4gucCCBK0BA"
 Global $VaettirfarmBuildCode = "OQdVACxOMv85hHpzOgEQE4NdJYCA"
+Global $ChanceEncounterfarmBuildCode = "OgGkQpVqaueUfxOIPxVRuY3HBWAA"
 
 #Region Global Items
 Global Const $PickUpAll = False
@@ -59,7 +63,7 @@ Global Const $winno = 3
 Global Const $whirling = 4
 Global Const $ee = 5
 Global Const $dash = 6
-Global Const $hos = 7
+Global Const $snowstorm = 7
 Global Const $soh = 8
 
 ; ==== VaettirBuild ====
@@ -71,6 +75,16 @@ Global Const $VaettirHos = 5
 Global Const $VaettirWastrel = 6
 Global Const $VaettirEcho = 7
 Global Const $VaettirChanneling = 8
+
+; ==== ChanceEncounterBuild ====
+Global Const $CEHundredblades = 1
+Global Const $CEWhirlwind = 2
+Global Const $CEToTheLimit = 3
+Global Const $CEForGreaterJustice = 4
+Global Const $CEEbsoh = 5
+Global Const $CEGrenths = 6
+Global Const $CEPiety = 7
+Global Const $CEHealsig = 8
 
 ; Store skills energy cost
 Global $skillCost[9]
@@ -90,7 +104,7 @@ Global Const $SKILL_ID_WASTREL_DEMISE = 1335
 
 
 #Region ### START Koda GUI section ###
-Global $Select_Farm = "Mossfarm|Vaettirfarm"
+Global $Select_Farm = "Mossfarm|Vaettirfarm|ChanceEncounterfarm"
 $Multibot_by_teddyoojo = GUICreate("Multibot_by_teddyoojo", 615, 437, 740, 302)
 $ConsoleField = GUICtrlCreateEdit("", 416, 8, 177, 193)
 GUICtrlSetData(-1, "")
@@ -165,6 +179,11 @@ While True
 					$Mossfarm = True
 					Out("Mossfarm")
 					GUICtrlSetData($BuildCodeLabel, "Build: " & $MossfarmBuildCode)
+				Case "ChanceEncounterfarm"
+					Out("ChanceEncounterfarm")
+					GUICtrlSetData($BuildCodeLabel, "Build: " & $ChanceEncounterfarmBuildCode)
+					SetAllFarmsFalse()
+					$ChanceEncounterfarm = True
 		EndSwitch
 		Sleep(1000)
 		ContinueLoop
@@ -175,6 +194,8 @@ While True
 			Mossfarm()
 		ElseIf $Vaettirfarm == True Then
 			Vaettirfarm()
+		ElseIf $ChanceEncounterfarm == True Then
+			ChanceEncounterfarm()
 		EndIf
 	EndIf
 WEnd
@@ -187,6 +208,33 @@ EndFunc   ;==>OUT#
 Func SetAllFarmsFalse()
 	$Vaettirfarm = False
 	$Mossfarm = False
+	$ChanceEncounterfarm = False
+EndFunc
+
+Func ChanceEncounterfarm()
+	If GetMapID() <> $Town_ID_Kaineng Then
+		MoveMap($Town_ID_Kaineng, 2, 0, 0)
+		WaitMapLoading($Town_ID_Kaineng)
+	EndIf
+	SwitchMode(1)
+	GoNearestNPCToCoords(2200, -1200)
+	Dialog(0x856005)
+	Sleep(50+GetPing())
+	Dialog(0x84)
+	WaitMapLoading($Map_ID_ChanceEncounter)
+	CommandAll(-5778, -4939)
+	MoveTo(-6300, -5266)
+	Sleep(25000)
+	UseHeroSkill(4, 2)
+	Sleep(1500)
+	UseHeroSkill(4,3)
+	Sleep(1500)
+	UseHeroSkill(4,4)
+	Sleep(4000)
+	KillFirstGroup()
+	Sleep(500)
+	MoveTo(-4717, -3223)
+
 EndFunc
 
 Func Mossfarm()
@@ -221,7 +269,11 @@ Func Mossfarm()
 	UseSkillEx($sf)
 	Sleep(GetPing()+ 100)
 	UseSkillEx($whirling)
-	Sleep(10000)
+	Sleep(200+GetPing())
+	TargetNearestEnemy()
+	Sleep(GetPing() + 50)
+	UseSkill($snowstorm, GetCurrentTargetID())
+	Sleep(6500)
 	CustomPickUpLoot()
 	If GetIsDead(-2) Then
 		$FailedRuns += 1
@@ -273,8 +325,6 @@ Func MapL()
 	;Sleep(GetPing()+500)
 	;UseCupcake()
 	;Sleep(GetPing()+500)
-;~ Displays your Norn Title for the Health boost.
-
 	Sleep(GetPing()+500)
 EndFunc
 
@@ -297,7 +347,7 @@ Func CombatLoop()
 	Out("Moving to aggro left")
 	MoveTo(13501, -20925)
 	MoveTo(13172, -22137)
-	TarGetNearestEnemy()
+	TargetNearestEnemy()
 	MoveAggroing(12496, -22600, 150)
 	MoveAggroing(11375, -22761, 150)
 	MoveAggroing(10925, -23466, 150)
@@ -324,7 +374,7 @@ Func CombatLoop()
 
 	WaitFor(6000)
 
-	TarGetNearestEnemy()
+	TargetNearestEnemy()
 
 	Out("Moving to aggro right")
 	MoveAggroing(10196, -20124, 150)
@@ -337,7 +387,7 @@ Func CombatLoop()
 	MoveAggroing(11120, -15105, 150)
 	MoveAggroing(11670, -15457, 150)
 	MoveAggroing(12604, -15320, 150)
-	TarGetNearestEnemy()
+	TargetNearestEnemy()
 	MoveAggroing(12476, -16157)
 
 	;Out("Waiting for right ball")
@@ -474,6 +524,39 @@ Func RunThereLongeyes()
 	Next
 EndFunc
 
+Func KillFirstGroup()
+	Local $lAgentArray
+	Local $Fight = True
+	Local $EnemyCount
+	Sleep(200)
+	While $Fight
+		$lAgentArray = GetAgentArray(0xDB)
+		$EnemyCount = 0
+		For $i=1 To $lAgentArray[0]
+			If DllStructGetData($lAgentArray[$i], "Allegiance") <> 0x3 Then ContinueLoop
+			If DllStructGetData($lAgentArray[$i], "HP") <= 0 Then ContinueLoop
+			If GetIsDead(-2) Then Return
+			TargetNearestEnemy()
+			Sleep(50+GetPing())
+			Local $lTargetID = GetCurrentTargetID()
+			Attack($lTargetID)
+			If IsRecharged($CEEbsoh) Then
+				UseSkillEx($CEEbsoh)
+			EndIf
+			If IsRecharged($CEHundredblades) Then
+				UseSkillEx($CEHundredblades)
+			EndIf
+			$EnemyCount += 1
+		Next
+		Out($EnemyCount)
+		If $EnemyCount <= 1 Then
+			$Fight = False
+		EndIf
+		Sleep(500)
+	WEnd
+EndFunc
+
+
 ;~ Description: BOOOOOOOOOOOOOOOOOM
 Func Kill()
 	If GetIsDead(-2) Then Return
@@ -481,7 +564,7 @@ Func Kill()
 	Local $lAgentArray
 	Local $lDeadlock = TimerInit()
 
-	TarGetNearestEnemy()
+	TargetNearestEnemy()
 	Sleep(100)
 	Local $lTarGetID = GetCurrentTarGetID()
 
@@ -517,7 +600,7 @@ Func Kill()
 
 		; Check if tarGet has ran away
 		If GetDistance(-2, $lTarGetID) > $Range_Earshot Then
-			TarGetNearestEnemy()
+			TargetNearestEnemy()
 			Sleep(GetPing()+100)
 			If GetAgentExists(-1) And DllStructGetData(GetAgentByID(-1), "HP") > 0 And GetDistance(-2, -1) < $Range_Area Then
 				$lTarGetID = GetCurrentTarGetID()
@@ -542,7 +625,7 @@ Func MoveRunning($lDestX, $lDestY)
 	Do
 		RndSleep(500)
 
-		TarGetNearestEnemy()
+		TargetNearestEnemy()
 		$lMe = GetAgentByID(-2)
 		$lTgt = GetAgentByID(-1)
 
@@ -769,7 +852,7 @@ Func MoveAggroing($lDestX, $lDestY, $lRandom = 150)
 					$ChatStuckTimer = TimerInit()
 					RndSleep(GetPing())
 					If GetDistance() > 1100 Then ; we werent stuck, but tarGet broke aggro. select a new one.
-						TarGetNearestEnemy()
+						TargetNearestEnemy()
 					EndIf
 				EndIf
 			EndIf
