@@ -51,6 +51,7 @@ Global Const $RARITY_White = 2621
 Global Const $ITEM_ID_Dyes = 146
 Global Const $ITEM_ExtraID_BlackDye = 10
 Global Const $ITEM_ID_Lockpicks = 22751
+Global Const $ITEM_ID_MinisterialCommendation = 36985
 
 Global $Array_pscon[39]=[910, 5585, 6366, 6375, 22190, 24593, 28435, 30855, 31145, 35124, 36682, 6376, 21809, 21810, 21813, 36683, 21492, 21812, 22269, 22644, 22752, 28436,15837, 21490, 30648, 31020, 6370, 21488, 21489, 22191, 26784, 28433, 5656, 18345, 21491, 37765, 21833, 28433, 28434]
 Global $Rare_Materials_Array[25] = [922, 923, 926, 927, 928, 930, 931, 932, 935, 936, 937, 938, 939, 941, 942, 943, 944, 945, 949, 950, 951, 952, 956, 6532, 6533]
@@ -84,7 +85,7 @@ Global Const $CEForGreaterJustice = 4
 Global Const $CEEbsoh = 5
 Global Const $CEGrenths = 6
 Global Const $CEPiety = 7
-Global Const $CEHealsig = 8
+Global Const $CEVow = 8
 
 ; Store skills energy cost
 Global $skillCost[9]
@@ -198,6 +199,7 @@ While True
 			ChanceEncounterfarm()
 		EndIf
 	EndIf
+	Sleep(1000)
 WEnd
 
 ;~ Description: Print to console with timestamp
@@ -217,6 +219,8 @@ Func ChanceEncounterfarm()
 		WaitMapLoading($Town_ID_Kaineng)
 	EndIf
 	SwitchMode(1)
+	MoveTo(1500, -1000)
+	Sleep(50+GetPing())
 	GoNearestNPCToCoords(2200, -1200)
 	Dialog(0x856005)
 	Sleep(50+GetPing())
@@ -232,9 +236,45 @@ Func ChanceEncounterfarm()
 	UseHeroSkill(4,4)
 	Sleep(4000)
 	KillFirstGroup()
-	Sleep(500)
+	Sleep(50+GetPing())
 	MoveTo(-4717, -3223)
-
+	Sleep(50+GetPing())
+	CommandAll(-7208, -2872)
+	Sleep(50+GetPing())
+	MoveTo(-4717, -3223)
+	Sleep(50+GetPing())
+	MoveTo(-4653, -584)
+	Sleep(50+GetPing())
+	MoveTo(-2193, 83)
+	Sleep(50+GetPing())
+	MoveTo(-594, -3688)
+	Sleep(200)
+	MoveTo(-782, -3897, 1)
+	Sleep(5000)
+	UseSkillEx($CEVow)
+	StayAliveChanceEncounter()
+	Sleep(500)
+	UseSkillEx($CEEbsoh)
+	Sleep(800)
+	If IsRecharged($CEGrenths) Then UseSkillEx($CEGrenths)
+	Sleep(500)
+	UseSkillEx($CEForGreaterJustice)
+	Sleep(200)
+	UseSkillEx($CEHundredblades)
+	Sleep(500)
+	UseSkillEx($CEToTheLimit)
+	Sleep(50+GetPing())
+	TargetNearestEnemy()
+	Sleep(50+GetPing())
+	UseSkill($CEWhirlwind, GetCurrentTargetID())
+	If IsRecharged($CEPiety) Then UseSkillEx($CEPiety)
+	Sleep(4000)
+	If IsRecharged($CEPiety) Then UseSkillEx($CEPiety)
+	CustomPickUpLoot()
+	Resign()
+	Sleep(3500)
+	ReturnToOutpost()
+	WaitMapLoading($Town_ID_Kaineng)
 EndFunc
 
 Func Mossfarm()
@@ -528,10 +568,13 @@ Func KillFirstGroup()
 	Local $lAgentArray
 	Local $Fight = True
 	Local $EnemyCount
-	Sleep(200)
+	Local $IsWalking = False
+	UseSkillEx($CEVow)
 	While $Fight
+		Sleep(700)
 		$lAgentArray = GetAgentArray(0xDB)
 		$EnemyCount = 0
+		If IsRecharged($CEPiety) Then UseSkillEx($CEPiety)
 		For $i=1 To $lAgentArray[0]
 			If DllStructGetData($lAgentArray[$i], "Allegiance") <> 0x3 Then ContinueLoop
 			If DllStructGetData($lAgentArray[$i], "HP") <= 0 Then ContinueLoop
@@ -548,11 +591,9 @@ Func KillFirstGroup()
 			EndIf
 			$EnemyCount += 1
 		Next
-		Out($EnemyCount)
 		If $EnemyCount <= 1 Then
 			$Fight = False
 		EndIf
-		Sleep(500)
 	WEnd
 EndFunc
 
@@ -611,6 +652,17 @@ Func Kill()
 
 		If TimerDiff($lDeadlock) > 60 * 1000 Then ExitLoop
 	WEnd
+EndFunc
+
+
+Func StayAliveChanceEncounter()
+	For $i = 0 To 200
+		If IsRecharged($CEPiety) Then UseSkillEx($CEPiety)
+		Sleep(150)
+		If DllStructGetData(GetAgentByID(-2), "HP") < 0.3 And IsRecharged($CEGrenths) Then UseSkillEx($CEGrenths)
+		Sleep(150)
+		$i += 1
+	Next
 EndFunc
 
 ;~ Description: Move to destX, destY. This is to be used in the run from across Bjora
@@ -702,6 +754,8 @@ Func CustomCanPickUp($aItem)
 	ElseIf CheckArrayRareMats($lModelID) Then
 		Return True
 	ElseIf CheckArrayNormalMats($lModelID) Then
+		Return True
+	ElseIf($lModelID == $ITEM_ID_MinisterialCommendation) Then
 		Return True
 	Else
 		Return False
