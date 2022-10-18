@@ -764,11 +764,11 @@ Func CustomCanPickUp($aItem)
 	ElseIf($lModelID == $ITEM_ID_Lockpicks) Then
 		Return True ; Lockpicks
 	ElseIf CheckArrayPscon($lModelID) Then ; ==== Pcons ==== or all event items
+		$PconsFarmed += 1
 		Return True
 	ElseIf ($lRarity == $RARITY_White) And $PickUpAll Then ; White items
 		Return False
 	ElseIf CheckArrayRareMats($lModelID) Then
-		$PconsFarmed += 1
 		Return True
 	ElseIf CheckArrayNormalMats($lModelID) Then
 		Return True
