@@ -459,8 +459,8 @@ Func CombatLoop()
   ;<=== Test End# <===
 
 	If GetIsDead(-2) Then
-		$FailCount += 1
-		GUICtrlSetData($FailRunLabel, "Fails: " & $FailCount)
+		$FailedRuns += 1
+		GUICtrlSetData($FailRunLabel, "Fails: " & $FailedRuns)
 		; StoreRun(GetCharname(), TimerDiff($lTimer), 0)
 	Else
 		$TotalRuns += 1
@@ -487,7 +487,7 @@ Func CombatLoop()
    Out("Zoning to Jaga Moraine")
 	MoveTo(-19968, 5564)
 	Move(-20076,  5580, 30)
-
+	InitializeOverlay()
 	WaitMapLoading($Map_ID_JAGA)
 
 	ClearMemory()
