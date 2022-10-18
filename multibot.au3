@@ -56,7 +56,7 @@ Global Const $ITEM_ID_MinisterialCommendation = 36985
 Global $Array_pscon[39]=[910, 5585, 6366, 6375, 22190, 24593, 28435, 30855, 31145, 35124, 36682, 6376, 21809, 21810, 21813, 36683, 21492, 21812, 22269, 22644, 22752, 28436,15837, 21490, 30648, 31020, 6370, 21488, 21489, 22191, 26784, 28433, 5656, 18345, 21491, 37765, 21833, 28433, 28434]
 Global $Rare_Materials_Array[25] = [922, 923, 926, 927, 928, 930, 931, 932, 935, 936, 937, 938, 939, 941, 942, 943, 944, 945, 949, 950, 951, 952, 956, 6532, 6533]
 Global $All_Materials_Array[36] = [921, 922, 923, 925, 926, 927, 928, 929, 930, 931, 932, 933, 934, 935, 936, 937, 938, 939, 940, 941, 942, 943, 944, 945, 946, 948, 949, 950, 951, 952, 953, 954, 955, 956, 6532, 6533]
-
+Global $RareSkins[90] = [114, 117, 118, 127, 205, 332, 333, 336, 341, 342, 344, 391, 396, 397, 399, 400, 402, 405, 406, 407, 408, 412, 416, 417, 418, 419, 421, 528, 737, 739, 740, 741, 742, 743, 744, 746, 735, 773, 776, 777, 778, 789, 790, 791, 792, 793, 794, 795, 796, 797, 854, 855, 856, 858, 860, 861, 862, 874, 875, 928, 942, 943, 944, 945, 947, 949, 951, 952, 953, 954, 955, 956, 958, 959, 960, 985, 1022, 1042, 1043, 1052, 1195, 1197, 1271, 1272, 1315, 1316, 1320, 1321, 1350, 1322]
 ; ==== MossBuild ====
 Global Const $sf = 1
 Global Const $shroud = 2
@@ -746,6 +746,7 @@ EndFunc   ;==>PickUpLoot
 Func CustomCanPickUp($aItem)
 	Local $lModelID = DllStructGetData(($aItem), 'ModelId')
 	Local $aExtraID = DllStructGetData($aItem, 'ExtraId')
+	Local $ItemTypeID = DllStructGetData($aItem, 'Type')
 	Local $lRarity = GetRarity($aItem)
 	Local $Requirement = GetItemReq($aItem)
 	If ($lModelID == 2511) Then
@@ -759,8 +760,7 @@ Func CustomCanPickUp($aItem)
 			Return True
 		EndIf
 	ElseIf ($lRarity == $RARITY_Gold) And IsChecked($GoldiesCheckbox) Then ; gold items^
-		$GoldiesFarmed += 1
-		Return True
+		If CheckRareItems($lModelID, $ItemTypeID) Then Return True
 	ElseIf($lModelID == $ITEM_ID_Lockpicks) Then
 		Return True ; Lockpicks
 	ElseIf CheckArrayPscon($lModelID) Then ; ==== Pcons ==== or all event items
@@ -793,11 +793,19 @@ Func CountSlots()
 	Return $temp
 EndFunc ; Counts open slots in your Imventory
 
-
 #Region Arrays
 Func CheckArrayPscon($lModelID)
 	For $p = 0 To (UBound($Array_pscon) -1)
-		If ($lModelID == $Array_pscon[$p]) Then Return True
+		If ($lModelID == $Array_pscon[$p]) Then	Return True
+	Next
+EndFunc
+
+Func CheckRareItems($lModelID, $ItemTypeID)
+	For $p = 0 To (UBound($RareSkins) - 1)
+		If ($lModelID == $RareSkins[$p]) Or ($ItemTypeID == 24) Then 
+			$GoldiesFarmed += 1
+			Return True
+		EndIf
 	Next
 EndFunc
 
