@@ -768,6 +768,7 @@ Func CustomCanPickUp($aItem)
 	ElseIf ($lRarity == $RARITY_White) And $PickUpAll Then ; White items
 		Return False
 	ElseIf CheckArrayRareMats($lModelID) Then
+		$PconsFarmed += 1
 		Return True
 	ElseIf CheckArrayNormalMats($lModelID) Then
 		Return True
