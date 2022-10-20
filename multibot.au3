@@ -750,7 +750,7 @@ Func CustomCanPickUp($aItem)
 	Local $lRarity = GetRarity($aItem)
 	Local $Requirement = GetItemReq($aItem)
 	If ($lModelID == 2511) Then
-		If (GetGoldCharacter() < 99000) Then
+		If (GetGoldCharacter() < 99000) And $ChanceEncounterfarm == False Then
 			Return True	; gold coins (only pick if character has less than 99k in inventory)
 		Else
 			Return False
