@@ -626,6 +626,11 @@ Func Kill()
 
 	While GetAgentExists($lTarGetID) And DllStructGetData(GetAgentByID($lTarGetID), "HP") > 0
 		Sleep(50)
+		If (GetInstanceUpTime() >= 500000) Then 
+			Do 
+				Sleep(100)
+			Until GetisDead(-2)
+		EndIf
 		If GetIsDead(-2) Then Return
 		$lAgentArray = GetAgentArray(0xDB)
 		StayAlive($lAgentArray)
@@ -872,7 +877,11 @@ EndFunc   ;==>GoNearestNPCToCoords
 
 Func MoveAggroing($lDestX, $lDestY, $lRandom = 150)
 	If GetIsDead(-2) Then Return
-
+	If (GetInstanceUpTime() >= 500000) Then 
+		Do 
+			Sleep(100)
+		Until GetisDead(-2)
+	EndIf
 	Local $lMe, $lAgentArray
 	Local $lBlocked
 	Local $lHosCount
