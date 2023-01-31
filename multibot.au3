@@ -106,7 +106,7 @@ Global Const $SKILL_ID_WASTREL_DEMISE = 1335
 
 #Region ### START Koda GUI section ###
 Global $Select_Farm = "Mossfarm|Vaettirfarm|ChanceEncounterfarm"
-$Multibot_by_teddyoojo = GUICreate("Multibot_by_teddyoojo", 615, 437, 740, 302)
+$Multibot_by_teddyoojo = GUICreate("Multibot_by_teddyoojo DOA IS FOR RETARDS", 615, 437, 740, 302)
 $ConsoleField = GUICtrlCreateEdit("", 416, 8, 177, 193)
 GUICtrlSetData(-1, "")
 Out("Multibot by teddyoojo")
