@@ -407,7 +407,11 @@ Func CombatLoop()
 	MoveAggroing(12476, -16157)
 
 	;Out("Waiting for right ball")
-	WaitFor(15*1000)
+	If(GetIsDead(-2)) Then
+		Out("ded")
+	Else 
+		WaitFor(15*1000)
+	EndIf
 
 	If GetDistance()<1000 Then
 		UseSkillEx($VaettirHos, -1)
@@ -415,7 +419,11 @@ Func CombatLoop()
 		UseSkillEx($VaettirHos, -2)
 	EndIf
 
-	WaitFor(5000)
+	If(GetIsDead(-2)) Then
+		Out("ded")
+	Else
+		WaitFor(5000)
+	EndIf
 
 	;Out("Blocking enemies in spot")
 	MoveAggroing(12920, -17032, 30)
@@ -436,7 +444,19 @@ Func CombatLoop()
    Out($Skill_ShadowForm_Time)
    Do
 	  WaitFor(100)
-	  If GetIsDead(-2) = 1 Then Return
+	  If GetIsDead(-2) Then
+	  	While GetIsDead(-2)
+			Out("Waiting for res")
+			Sleep(1000)
+			Local $tDeadLock = TimerInit()
+        	If TimerDiff($tDeadLock) > 60000 Then
+            	$Deadlocked = True
+            	Return
+        	EndIf
+		WEnd 
+	  	Rezone()
+	  	Return
+	 EndIf
    Until (TimerDiff($timer)) < $Skill_ShadowForm_Time Or (TimerDiff($lDeadlock_2) > 20000)
 
    UseSF(True)
@@ -481,6 +501,10 @@ Func CombatLoop()
             Return
         EndIf
 	WEnd
+	Rezone();
+EndFunc
+
+Func Rezone()
    Out("Zoning to Bjora")
 	Move(15865, -20531)
 	WaitMapLoading($Map_ID_BJORA)
@@ -491,7 +515,6 @@ Func CombatLoop()
 	WaitMapLoading($Map_ID_JAGA)
 
 	ClearMemory()
-	; _PurgeHook()
 EndFunc
 
 Func MoveAndKill()
